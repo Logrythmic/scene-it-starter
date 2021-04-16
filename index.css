@@ -10,13 +10,18 @@ body {
 	color: #50524F;
 }
 
-.results {
-	margin-top: 20px;
-}
-
 .movies-container {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: space-evenly;
+  
 }
 
+.card {
+  margin-top: 8px;
+}
+
+.vert {
+  height: 400px;
+}
