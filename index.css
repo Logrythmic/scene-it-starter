@@ -18,6 +18,9 @@ body {
   
 }
 
+.title{
+  text-align: center;
+}
 .card {
   margin-top: 8px;
 }

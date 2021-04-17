@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', function(){
   let movieBox = document.getElementById("movies");
-  movieBox.innerHTML = renderMovies(movieData);
-  console.log("time1");
+  movieBox.innerHTML = renderMoviesBlank(); //renders a front page
+  
   document.getElementById('search-form').addEventListener('keyup', debounce(function(e){
     e.preventDefault();
     // console.log(e); // test log
     console.log(e.target.value); // test log
-    if(e.target.value === undefined){
-      renderMoviesBlank();
+    if(e.target.value === ""){
+      console.log("search is blank???!") // test log for logic to make sure condition was valid
+      movieBox.innerHTML = renderMoviesBlank();
     };
     const searchString = "http://www.omdbapi.com/?i=tt3896198&apikey=43fea795&s=" + e.target.value.toLowerCase(); // this stores the search terms
 
@@ -15,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function(){
     // console.log(urlEncodedSearchString);
     //getting an error in console log about the get command being asyncronous
     axios.get(searchString).then(res =>{
-      console.log(res.data.Search);
+      console.log(res.data.Search); // seeing the data that is being pulled
       movieBox.innerHTML = renderMovies(res.data.Search); // !!Should!! render new movie list
     })
     .catch(err => {
@@ -50,12 +51,32 @@ function debounce(func, wait, immediate) {
 	};
 };
 
+function renderMoviesBlank(){
+  return `
+    <div class="movie">
+      <div class="card" id="movie0" style="width: 18rem;">
+      <img src="https://images.unsplash.com/photo-1616530940355-351fabd9524b?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=675&q=80" class="card-img-top vert" alt="What is your favorite movie?">
+        <div class="card-body">
+          <h6 class="title">What Is Your Favorite Movie?</h6>
+          <h6 class="title">Try The Search Bar Above!</h6>
+        </div>
+      </div>
+    </div>`
+};
+
+function hasPoster(poster){
+  if(poster === "N/A")
+    return "./no_image.png";
+  else
+    return poster;
+};
+
 function renderMovies(movieArray){
   const movies = movieArray.map((item, index) => {
     const printed =`
     <div class="movie">
       <div class="card" id="movie${index}" style="width: 18rem;">
-      <img src="${item.Poster}" class="card-img-top vert" alt="${item.Title}">
+      <img src="${hasPoster(item.Poster)}" class="card-img-top vert" alt="${item.Title}">
         <div class="card-body">
           <h6 class="card-title">${item.Title}</h6>
           <p class="card-text">${item.Year}</p>
