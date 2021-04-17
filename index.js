@@ -1,38 +1,28 @@
 document.addEventListener('DOMContentLoaded', function(){
-  let movieBox = document.getElementById("movies");
+  const movieBox = document.getElementById("movies");
   movieBox.innerHTML = renderMoviesBlank(); //renders a front page
-  
+
   document.getElementById('search-form').addEventListener('keyup', debounce(function(e){
     e.preventDefault();
-    // console.log(e); // test log
-    console.log(e.target.value); // test log
+
     if(e.target.value === ""){
-      console.log("search is blank???!") // test log for logic to make sure condition was valid
       movieBox.innerHTML = renderMoviesBlank();
-    };
-    const searchString = "http://www.omdbapi.com/?i=tt3896198&apikey=43fea795&s=" + e.target.value.toLowerCase(); // this stores the search terms
+    }
+    else {
+      const searchString = "http://www.omdbapi.com/?apikey=43fea795&s=" + encodeURIComponent(e.target.value.toLowerCase()); // this stores the search terms
 
-    // let urlEncodedSearchString = encodeURIComponent(searchString);
-    // console.log(urlEncodedSearchString);
-    //getting an error in console log about the get command being asyncronous
-    axios.get(searchString).then(res =>{
-      console.log(res.data.Search); // seeing the data that is being pulled
-      movieBox.innerHTML = renderMovies(res.data.Search); // !!Should!! render new movie list
-    })
-    .catch(err => {
-      console.log("the get command errored");
-    });
-  },400));//keyup is registering the key strokes
+      axios.get(searchString).then(res =>{
+        console.log(res.data.Search); // seeing the data that is being pulled
+        movieBox.innerHTML = renderMovies(res.data.Search); // render new movie list using new search parameters
+      })
+      .catch(err => {
+        console.log("the get command errored");
+        console.log(err);
+      });
+    }
 
-    // const filteredMovies = movieData.filter(movie =>{
-    //   return movie.Title.toLowerCase().includes(searchString) || movie.Year.toLowerCase().includes(searchString);
-    // }); // this will store items that match the items searched for
-    // console.log(filteredMovies); //shows the filtered movie list
-    
-    // movieBox.innerHTML = renderMovies(filteredMovies); // !!Should!! render new movie list
-    // console.log("search button is pressed"); //test log
-    // console.log(e.target);// test log
-  // });
+  },400));//keyup is registering the key strokes - registers after 400ms
+
 
 });
 
@@ -51,7 +41,7 @@ function debounce(func, wait, immediate) {
 	};
 };
 
-function renderMoviesBlank(){
+function renderMoviesBlank(){ // renders a home page when nothing is searched and on start up
   return `
     <div class="movie">
       <div class="card" id="movie0" style="width: 18rem;">
@@ -64,7 +54,7 @@ function renderMoviesBlank(){
     </div>`
 };
 
-function hasPoster(poster){
+function hasPoster(poster){ // checks for an image, if no image then returns a default
   if(poster === "N/A")
     return "./no_image.png";
   else
@@ -80,14 +70,29 @@ function renderMovies(movieArray){
         <div class="card-body">
           <h6 class="card-title">${item.Title}</h6>
           <p class="card-text">${item.Year}</p>
-          <a href="#" class="btn btn-primary">Add</a>
+          <button onclick="addToWatchList('${item.imdbID}')" id="add-movie" class="btn btn-primary">Add to Watchlist</button>
         </div>
       </div>
     </div>
     `;
-    console.log("this has run the render");
     return printed;
   });
-  console.log("render is showing");
   return movies.join('');
 };
+
+function addToWatchList(imdbID){
+  console.log("running watchlist");
+  var movie = movieData.find(function(currentMovie){  // this doesnt seem to take advantage of the dynamic nature of the main js file
+    return currentMovie.imdbID == imdbID;
+  })
+  var watchlistJSON = localStorage.getItem('watchlist');
+  var watchlist = JSON.parse(watchlistJSON);
+  if(watchlist == null){
+    watchlist= [];
+  }
+  watchlist.push(movie);
+  console.log(watchlist);
+  watchlistJSON = JSON.stringify(watchlist);
+  console.log(watchlistJSON);
+  localStorage.setItem('watchlist', watchlistJSON);
+}
